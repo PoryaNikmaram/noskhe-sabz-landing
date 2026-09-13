@@ -1,0 +1,99 @@
+@import 'tailwindcss';
+
+@theme {
+  /* Brand palette */
+  --color-brand-50: #e6f9f7;
+  --color-brand-100: #b3ede8;
+  --color-brand-200: #80e1d9;
+  --color-brand-300: #4dd5ca;
+  --color-brand-400: #26c9bc;
+  --color-brand-500: #00afa5;
+  --color-brand-600: #009a91;
+  --color-brand-700: #007a73;
+  --color-brand-800: #005a55;
+  --color-brand-900: #003a37;
+
+  /* Background */
+  --color-background: #ffffff;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f4f7f7;
+
+  /* Text */
+  --color-foreground: #0f1f1e;
+  --color-foreground-muted: #4a5f5d;
+  --color-foreground-subtle: #7a8f8d;
+
+  /* Borders */
+  --color-border: #e2eaea;
+  --color-border-strong: #c5d0cf;
+
+  /* Actions */
+  --color-primary: var(--color-brand-500);
+  --color-primary-hover: var(--color-brand-600);
+  --color-primary-active: var(--color-brand-700);
+
+  /* Status */
+  --color-success: #16a34a;
+  --color-warning: #d97706;
+  --color-danger: #dc2626;
+  --color-info: #0284c7;
+
+  /* Radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-soft: 0 1px 2px rgb(15 31 30 / 0.04), 0 1px 3px rgb(15 31 30 / 0.06);
+  --shadow-card: 0 2px 8px rgb(15 31 30 / 0.06), 0 1px 2px rgb(15 31 30 / 0.04);
+  --shadow-floating: 0 8px 24px rgb(15 31 30 / 0.08), 0 2px 6px rgb(15 31 30 / 0.04);
+
+  /* Motion */
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 450ms;
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-enter: cubic-bezier(0, 0, 0.2, 1);
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1);
+
+  /* Layout */
+  --container-narrow: 800px;
+  --container-default: 1200px;
+  --container-wide: 1440px;
+
+  /* Typography */
+  --font-sans: var(--font-vazirmatn), ui-sans-serif, system-ui, sans-serif;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100%;
+  overflow-x: clip;
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  line-height: 1.7;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+button {
+  font: inherit;
+}
