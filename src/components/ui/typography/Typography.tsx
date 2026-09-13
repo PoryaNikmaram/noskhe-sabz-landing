@@ -1,7 +1,6 @@
 import { cn } from '@/lib/cn';
 
-import type { ElementType } from 'react';
-import type { TypographyProps, TypographyVariant } from './typography.types';
+import type { TypographyElement, TypographyProps, TypographyVariant } from './typography.types';
 
 const variantStyles: Record<TypographyVariant, string> = {
   display: 'text-4xl leading-snug font-bold tracking-tight md:text-5xl md:leading-snug lg:text-6xl',
@@ -15,7 +14,7 @@ const variantStyles: Record<TypographyVariant, string> = {
   caption: 'text-xs leading-normal font-normal text-foreground-muted',
 };
 
-const defaultElements: Record<TypographyVariant, ElementType> = {
+const defaultElements: Record<TypographyVariant, TypographyElement> = {
   display: 'h1',
   h1: 'h1',
   h2: 'h2',
@@ -34,7 +33,7 @@ export function Typography({
   className,
   ...props
 }: TypographyProps) {
-  const Component = (as ?? defaultElements[variant]) as ElementType;
+  const Component = as ?? defaultElements[variant];
 
   return (
     <Component className={cn(variantStyles[variant], className)} {...props}>

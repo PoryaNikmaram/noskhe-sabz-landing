@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 720" width="512" height="720">
+  <rect width="512" height="720" fill="#ffffff"/>
+  <rect width="512" height="72" fill="#00afa5"/>
+  <text x="256" y="46" text-anchor="middle" font-family="Tahoma, Arial, sans-serif" font-size="24" font-weight="700" fill="#ffffff">???? ?????????</text>
+  <rect x="48" y="120" width="416" height="88" rx="12" fill="#e6f9f7"/>
+  <rect x="48" y="228" width="200" height="140" rx="12" fill="#f4f7f7" stroke="#e2eaea"/>
+  <rect x="264" y="228" width="200" height="140" rx="12" fill="#f4f7f7" stroke="#e2eaea"/>
+  <rect x="48" y="388" width="416" height="240" rx="12" fill="#f4f7f7" stroke="#e2eaea"/>
+  <text x="68" y="172" font-family="Tahoma, Arial, sans-serif" font-size="20" fill="#0f1f1e">??? ? ?????? ????</text>
+  <text x="68" y="292" font-family="Tahoma, Arial, sans-serif" font-size="16" fill="#4a5f5d">????</text>
+  <text x="284" y="292" font-family="Tahoma, Arial, sans-serif" font-size="16" fill="#4a5f5d">?????</text>
+</svg>
