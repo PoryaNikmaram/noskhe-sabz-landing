@@ -1,23 +1,30 @@
 'use client';
 
 import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
-import { useThree } from '@react-three/fiber';
 
-import { ENABLE_ORBIT_CONTROLS } from '../config/catalog-scene';
+import {
+  CAMERA_FAR,
+  CAMERA_FOV,
+  CAMERA_NEAR,
+  CAMERA_POSITION,
+  CAMERA_TARGET,
+  ENABLE_ORBIT_CONTROLS,
+} from '../config/catalog-scene';
 
+/**
+ * A fixed presentation camera, not a free viewer: the book is scaled to fit the
+ * viewport (see `CatalogScene`), so the camera itself never has to move.
+ */
 export function CameraRig() {
-  const size = useThree((state) => state.size);
-  const compact = size.width < 768;
-
   return (
     <>
       <PerspectiveCamera
         makeDefault
-        fov={38}
-        near={0.1}
-        far={40}
-        position={[0, compact ? 0.42 : 0.52, compact ? 3.6 : 2.85]}
-        onUpdate={(camera) => camera.lookAt(0, 0.05, 0)}
+        fov={CAMERA_FOV}
+        near={CAMERA_NEAR}
+        far={CAMERA_FAR}
+        position={CAMERA_POSITION}
+        onUpdate={(camera) => camera.lookAt(...CAMERA_TARGET)}
       />
       {ENABLE_ORBIT_CONTROLS ? <OrbitControls enableDamping={false} /> : null}
     </>

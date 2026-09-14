@@ -2,14 +2,14 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 720" width="512" height="720">
   <rect width="512" height="720" fill="#f4f7f7"/>
   <rect x="36" y="36" width="440" height="648" rx="12" fill="#ffffff" stroke="#e2eaea"/>
-  <rect x="64" y="72" width="180" height="14" rx="7" fill="#00afa5"/>
-  <text x="64" y="130" font-family="Tahoma, Arial, sans-serif" font-size="28" font-weight="700" fill="#0f1f1e">????? ?????</text>
+  <rect x="268" y="72" width="180" height="14" rx="7" fill="#00afa5"/>
+  <text x="448" y="130" text-anchor="start" direction="rtl" font-family="Tahoma, Arial, sans-serif" font-size="28" font-weight="700" fill="#0f1f1e">فهرست بخش‌ها</text>
   <rect x="64" y="170" width="384" height="52" rx="8" fill="#e6f9f7"/>
   <rect x="64" y="236" width="384" height="52" rx="8" fill="#e6f9f7"/>
   <rect x="64" y="302" width="384" height="52" rx="8" fill="#e6f9f7"/>
   <rect x="64" y="368" width="384" height="52" rx="8" fill="#e6f9f7"/>
-  <text x="84" y="204" font-family="Tahoma, Arial, sans-serif" font-size="18" fill="#007a73">???? ?????????</text>
-  <text x="84" y="270" font-family="Tahoma, Arial, sans-serif" font-size="18" fill="#007a73">?????? ????</text>
-  <text x="84" y="336" font-family="Tahoma, Arial, sans-serif" font-size="18" fill="#007a73">???? ? ????</text>
-  <text x="84" y="402" font-family="Tahoma, Arial, sans-serif" font-size="18" fill="#007a73">????????</text>
+  <text x="428" y="204" text-anchor="start" direction="rtl" font-family="Tahoma, Arial, sans-serif" font-size="18" font-weight="400" fill="#007a73">نسخه الکترونیک</text>
+  <text x="428" y="270" text-anchor="start" direction="rtl" font-family="Tahoma, Arial, sans-serif" font-size="18" font-weight="400" fill="#007a73">انبار و موجودی</text>
+  <text x="428" y="336" text-anchor="start" direction="rtl" font-family="Tahoma, Arial, sans-serif" font-size="18" font-weight="400" fill="#007a73">بیمه و مالی</text>
+  <text x="428" y="402" text-anchor="start" direction="rtl" font-family="Tahoma, Arial, sans-serif" font-size="18" font-weight="400" fill="#007a73">پشتیبانی</text>
 </svg>

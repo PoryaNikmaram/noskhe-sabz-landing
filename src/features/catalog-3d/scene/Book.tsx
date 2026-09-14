@@ -1,151 +1,152 @@
 'use client';
 
 import { useFrame, useLoader } from '@react-three/fiber';
+import { easing } from 'maath';
 import { useEffect, useMemo, useRef } from 'react';
 
-import { catalogPages } from '../config/catalog-pages';
+import { PAGE_WIDTH, SHEET_STACK_GAP, sheetSurfaces, type BookMotion } from '../config/book-engine';
+import { catalogSheets } from '../config/catalog-sheets';
+import { isBookClosed, isSheetTurned } from '../lib/navigation';
 import {
-  BOARD_COLOR,
-  CURL_STRENGTH,
-  PAGE_HEIGHT,
-  PAGE_WIDTH,
-  REDUCED_MOTION_CURL,
-  SHEET_THICKNESS,
-  SPINE_COLOR,
-} from '../config/catalog-scene';
-import { BookPage, type PageTurnState } from './BookPage';
-import { easeInOutCubic } from './deform-page';
+  BOOK_BASE_YAW,
+  bookFramingOffsetX,
+  cumulativeSheetDepths,
+  sheetStackOffset,
+} from '../lib/page-pose';
+import { BookSheet } from './BookSheet';
+import { createPageGeometry } from './page-geometry';
 import { SvgTextureLoader } from './load-svg-texture';
 
-import type { Texture } from 'three';
-import type { TurnDirection } from '../types/catalog.types';
+import type { BufferGeometry, Group, Texture } from 'three';
+import type { SheetSurface } from '../config/book-engine';
+import type { BookDirection, CatalogSheet } from '../types/catalog.types';
 
 type BookProps = {
-  turnedCount: number;
-  pendingTurn: TurnDirection | null;
-  reducedMotion: boolean;
-  turnDurationMs: number;
-  onTurnSettled: (nextCount: number) => void;
-  onRequestTurn: (direction: TurnDirection) => void;
+  displayedPosition: number;
+  direction: BookDirection;
+  motion: BookMotion;
+  onSelectSheet: (sheetIndex: number) => void;
+  onReady: () => void;
 };
 
-/**
- * `turnedCount` sheets already rest on the left of the spine; the rest rest on
- * the right. Each sheet's Z offset makes the two stacks look physically piled.
- */
-function stackOffsetForSheet(sheetIndex: number, turnedCount: number): number {
-  if (sheetIndex >= turnedCount) {
-    return -(sheetIndex - turnedCount) * SHEET_THICKNESS;
-  }
-  return -(turnedCount - 1 - sheetIndex) * SHEET_THICKNESS;
-}
+type SheetSetup = {
+  sheet: CatalogSheet;
+  surface: SheetSurface;
+  geometry: BufferGeometry;
+};
 
-function sheetTexture(textures: readonly Texture[], index: number): Texture {
-  const texture = textures[index];
+function requireTexture(textures: ReadonlyMap<string, Texture>, url: string): Texture {
+  const texture = textures.get(url);
   if (!texture) {
-    throw new Error(`Catalog texture at index ${index} is missing.`);
+    throw new Error(`Catalog texture was not loaded: ${url}`);
   }
   return texture;
 }
 
-export function Book({
-  turnedCount,
-  pendingTurn,
-  reducedMotion,
-  turnDurationMs,
-  onTurnSettled,
-  onRequestTurn,
-}: BookProps) {
-  const textureUrls = useMemo(() => catalogPages.flatMap((page) => [page.front, page.back]), []);
-  const textures = useLoader(SvgTextureLoader, textureUrls) as Texture[];
+export function Book({ displayedPosition, direction, motion, onSelectSheet, onReady }: BookProps) {
+  const textureUrls = useMemo(() => {
+    const urls = new Set<string>();
+    for (const sheet of catalogSheets) {
+      urls.add(sheet.front);
+      urls.add(sheet.back);
+      if (sheet.roughnessMap) {
+        urls.add(sheet.roughnessMap);
+      }
+    }
+    return Array.from(urls);
+  }, []);
 
-  const turnState = useRef<PageTurnState>({ sheetIndex: -1, progress: 0 });
-  const animation = useRef({
-    active: false,
-    start: 0,
-    end: 0,
-    elapsed: 0,
-    duration: 0.7,
-    direction: 'next' as TurnDirection,
-  });
+  // Suspends until every placeholder SVG is rasterized. `SvgTextureLoader`
+  // hands back textures that already have the right colour space, so nothing
+  // here has to mutate a hook result.
+  const loadedTextures = useLoader(SvgTextureLoader, textureUrls);
+  const textureByUrl = useMemo(
+    () => new Map(textureUrls.map((url, index) => [url, loadedTextures[index]] as const)),
+    [textureUrls, loadedTextures],
+  );
+
+  /** Geometry is shared by thickness, so all plain sheets use one buffer. */
+  const setups = useMemo<SheetSetup[]>(() => {
+    const geometryByDepth = new Map<number, BufferGeometry>();
+    return catalogSheets.map((sheet) => {
+      const surface = sheetSurfaces[sheet.type];
+      let geometry = geometryByDepth.get(surface.depth);
+      if (!geometry) {
+        geometry = createPageGeometry(surface.depth);
+        geometryByDepth.set(surface.depth, geometry);
+      }
+      return { sheet, surface, geometry };
+    });
+  }, []);
 
   useEffect(() => {
-    if (!pendingTurn) {
-      return;
-    }
-
-    const sheetIndex = pendingTurn === 'next' ? turnedCount : turnedCount - 1;
-    animation.current = {
-      active: true,
-      start: pendingTurn === 'next' ? 0 : 1,
-      end: pendingTurn === 'next' ? 1 : 0,
-      elapsed: 0,
-      duration: turnDurationMs / 1000,
-      direction: pendingTurn,
+    const owned = new Set(setups.map((setup) => setup.geometry));
+    return () => {
+      for (const geometry of owned) {
+        geometry.dispose();
+      }
     };
-    turnState.current.sheetIndex = sheetIndex;
-    turnState.current.progress = animation.current.start;
-  }, [pendingTurn, turnedCount, turnDurationMs]);
+  }, [setups]);
+
+  const cumulativeDepths = useMemo(
+    () =>
+      cumulativeSheetDepths(
+        catalogSheets.map((sheet) => sheetSurfaces[sheet.type].depth),
+        SHEET_STACK_GAP,
+      ),
+    [],
+  );
+
+  useEffect(() => {
+    onReady();
+  }, [onReady]);
+
+  const sheetCount = catalogSheets.length;
+  const bookClosed = isBookClosed(displayedPosition, sheetCount);
+
+  const framingRef = useRef<Group>(null);
+  const framingOffsetX = bookFramingOffsetX({
+    displayedPosition,
+    sheetCount,
+    direction,
+    pageWidth: PAGE_WIDTH,
+  });
 
   useFrame((_, delta) => {
-    const current = animation.current;
-    if (!current.active) {
-      return;
-    }
-
-    current.elapsed += delta;
-    const t = Math.min(1, current.elapsed / current.duration);
-    turnState.current.progress = current.start + (current.end - current.start) * easeInOutCubic(t);
-
-    if (t >= 1) {
-      current.active = false;
-      const settledCount = current.direction === 'next' ? turnedCount + 1 : turnedCount - 1;
-      turnState.current.sheetIndex = -1;
-      turnState.current.progress = current.end;
-      onTurnSettled(settledCount);
+    const framing = framingRef.current;
+    if (framing) {
+      easing.damp(framing.position, 'x', framingOffsetX, motion.boneSmoothTime, delta);
     }
   });
 
-  const curlStrength = reducedMotion ? REDUCED_MOTION_CURL : CURL_STRENGTH;
-  const spineDepth = catalogPages.length * SHEET_THICKNESS + 0.03;
-
   return (
-    <group>
-      <mesh position={[0, 0, -spineDepth / 2]} castShadow>
-        <boxGeometry args={[0.04, PAGE_HEIGHT, spineDepth]} />
-        <meshStandardMaterial color={SPINE_COLOR} roughness={0.7} metalness={0} />
-      </mesh>
-
-      {catalogPages.map((page, sheetIndex) => {
-        const interactive =
-          pendingTurn === null && (sheetIndex === turnedCount || sheetIndex === turnedCount - 1);
-
-        return (
-          <BookPage
-            key={page.id}
+    <group ref={framingRef}>
+      <group rotation={[0, BOOK_BASE_YAW, 0]}>
+        {setups.map(({ sheet, surface, geometry }, sheetIndex) => (
+          <BookSheet
+            key={sheet.id}
             sheetIndex={sheetIndex}
-            turnedCount={turnedCount}
-            turnState={turnState}
-            frontMap={sheetTexture(textures, sheetIndex * 2)}
-            backMap={sheetTexture(textures, sheetIndex * 2 + 1)}
-            curlStrength={curlStrength}
-            stackOffset={stackOffsetForSheet(sheetIndex, turnedCount)}
-            interactive={interactive}
-            onPageClick={(clickedIndex) => {
-              if (clickedIndex === turnedCount) {
-                onRequestTurn('next');
-              } else if (clickedIndex === turnedCount - 1) {
-                onRequestTurn('prev');
-              }
-            }}
+            turned={isSheetTurned(sheetIndex, displayedPosition)}
+            bookClosed={bookClosed}
+            direction={direction}
+            surface={surface}
+            motion={motion}
+            geometry={geometry}
+            frontMap={requireTexture(textureByUrl, sheet.front)}
+            backMap={requireTexture(textureByUrl, sheet.back)}
+            roughnessMap={
+              sheet.roughnessMap ? requireTexture(textureByUrl, sheet.roughnessMap) : undefined
+            }
+            stackOffset={sheetStackOffset(
+              sheetIndex,
+              displayedPosition,
+              cumulativeDepths,
+              direction,
+            )}
+            onSelect={onSelectSheet}
           />
-        );
-      })}
-
-      <mesh position={[PAGE_WIDTH / 2, -PAGE_HEIGHT / 2 - 0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
-        <boxGeometry args={[PAGE_WIDTH + 0.04, spineDepth + 0.06, 0.03]} />
-        <meshStandardMaterial color={BOARD_COLOR} roughness={0.8} metalness={0} />
-      </mesh>
+        ))}
+      </group>
     </group>
   );
 }

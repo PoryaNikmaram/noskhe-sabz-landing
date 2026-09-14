@@ -2,7 +2,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 720" width="512" height="720">
   <rect width="512" height="720" fill="#ffffff"/>
   <rect width="512" height="72" fill="#009a91"/>
-  <text x="256" y="46" text-anchor="middle" font-family="Tahoma, Arial, sans-serif" font-size="24" font-weight="700" fill="#ffffff">?????? ?????</text>
+  <text x="256" y="46" text-anchor="middle" direction="rtl" font-family="Tahoma, Arial, sans-serif" font-size="24" font-weight="700" fill="#ffffff">انبار و موجودی</text>
   <rect x="48" y="112" width="128" height="72" rx="10" fill="#e6f9f7"/>
   <rect x="192" y="112" width="128" height="72" rx="10" fill="#e6f9f7"/>
   <rect x="336" y="112" width="128" height="72" rx="10" fill="#e6f9f7"/>
@@ -11,4 +11,5 @@
   <rect x="48" y="344" width="416" height="56" rx="8" fill="#f4f7f7"/>
   <rect x="48" y="412" width="416" height="56" rx="8" fill="#f4f7f7"/>
   <rect x="48" y="480" width="416" height="56" rx="8" fill="#f4f7f7"/>
+  <text x="444" y="244" text-anchor="start" direction="rtl" font-family="Tahoma, Arial, sans-serif" font-size="18" font-weight="400" fill="#4a5f5d">موجودی قابل عرضه</text>
 </svg>

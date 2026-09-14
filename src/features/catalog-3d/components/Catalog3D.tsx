@@ -4,15 +4,15 @@ import dynamic from 'next/dynamic';
 import { useCallback, useState, useSyncExternalStore, type ReactNode } from 'react';
 
 import { Typography } from '@/components/ui/typography/Typography';
-import { catalogPages } from '../config/catalog-pages';
-import { REDUCED_MOTION_DURATION_MS, TURN_DURATION_MS } from '../config/catalog-scene';
+import { BOOK_DIRECTION, resolveBookMotion } from '../config/book-engine';
+import { catalogSheetCount } from '../config/catalog-sheets';
+import { useCatalogNavigation } from '../hooks/useCatalogNavigation';
 import { useReducedMotion } from '../hooks/useReducedMotion';
 import { useWebGLSupport } from '../hooks/useWebGLSupport';
+import { describePosition, positionForSheetClick } from '../lib/navigation';
 import { CatalogControls } from './CatalogControls';
 import { CatalogErrorBoundary } from './CatalogErrorBoundary';
 import { CatalogFallback } from './CatalogFallback';
-
-import type { TurnDirection } from '../types/catalog.types';
 
 const CatalogCanvas = dynamic(
   () => import('../scene/CatalogCanvas').then((mod) => mod.CatalogCanvas),
@@ -36,94 +36,84 @@ function ViewportFrame({ children }: { children: ReactNode }) {
   );
 }
 
+function FramePlaceholder({ label }: { label: string }) {
+  return (
+    <div className="flex h-full items-center justify-center">
+      <Typography variant="body-sm" className="text-foreground-muted">
+        {label}
+      </Typography>
+    </div>
+  );
+}
+
 export function Catalog3D() {
   const mounted = useIsClient();
-  const [turnedCount, setTurnedCount] = useState(0);
-  const [pendingTurn, setPendingTurn] = useState<TurnDirection | null>(null);
   const webglSupported = useWebGLSupport();
   const reducedMotion = useReducedMotion();
+  const [sceneReady, setSceneReady] = useState(false);
 
-  const requestTurn = useCallback(
-    (direction: TurnDirection) => {
-      if (pendingTurn) {
-        return;
-      }
-      if (direction === 'next' && turnedCount >= catalogPages.length) {
-        return;
-      }
-      if (direction === 'prev' && turnedCount <= 0) {
-        return;
-      }
-      setPendingTurn(direction);
+  const motion = resolveBookMotion(reducedMotion);
+  const navigation = useCatalogNavigation({
+    sheetCount: catalogSheetCount,
+    nearStepMs: motion.sequentialStepNearMs,
+    farStepMs: motion.sequentialStepFarMs,
+  });
+  const { targetPosition, displayedPosition, goToPosition, goToNext, goToPrevious } = navigation;
+
+  const handleSceneReady = useCallback(() => setSceneReady(true), []);
+
+  const handleSelectSheet = useCallback(
+    (sheetIndex: number) => {
+      goToPosition(positionForSheetClick(sheetIndex, displayedPosition, catalogSheetCount));
     },
-    [pendingTurn, turnedCount],
+    [displayedPosition, goToPosition],
   );
 
-  const handleTurnSettled = useCallback((nextCount: number) => {
-    setTurnedCount(nextCount);
-    setPendingTurn(null);
-  }, []);
-
-  const handleFallbackPrevious = useCallback(() => {
-    setTurnedCount((count) => Math.max(0, count - 1));
-  }, []);
-
-  const handleFallbackNext = useCallback(() => {
-    setTurnedCount((count) => Math.min(catalogPages.length - 1, count + 1));
-  }, []);
-
-  const currentSheet = Math.min(turnedCount + 1, catalogPages.length);
   const showFallback = mounted && !webglSupported;
-  const turnDurationMs = reducedMotion ? REDUCED_MOTION_DURATION_MS : TURN_DURATION_MS;
 
-  const webglFallback = (
+  const fallbackFor = (reason: 'webgl' | 'scene') => (
     <CatalogFallback
-      turnedCount={turnedCount}
-      reason="webgl"
-      onPrevious={handleFallbackPrevious}
-      onNext={handleFallbackNext}
-    />
-  );
-
-  const sceneFallback = (
-    <CatalogFallback
-      turnedCount={turnedCount}
-      reason="scene"
-      onPrevious={handleFallbackPrevious}
-      onNext={handleFallbackNext}
+      position={targetPosition}
+      reason={reason}
+      onPrevious={goToPrevious}
+      onNext={goToNext}
     />
   );
 
   return (
     <div className="space-y-6">
       {showFallback ? (
-        webglFallback
+        fallbackFor('webgl')
       ) : (
-        <CatalogErrorBoundary fallback={sceneFallback}>
+        <CatalogErrorBoundary fallback={fallbackFor('scene')}>
           <ViewportFrame>
             {mounted ? (
-              <CatalogCanvas
-                turnedCount={turnedCount}
-                pendingTurn={pendingTurn}
-                reducedMotion={reducedMotion}
-                turnDurationMs={turnDurationMs}
-                onTurnSettled={handleTurnSettled}
-                onRequestTurn={requestTurn}
-              />
-            ) : (
-              <div className="flex h-full items-center justify-center">
-                <Typography variant="body-sm" className="text-foreground-muted">
-                  در حال آماده‌سازی صحنه
-                </Typography>
+              <div className="relative h-full w-full">
+                <CatalogCanvas
+                  displayedPosition={displayedPosition}
+                  direction={BOOK_DIRECTION}
+                  reducedMotion={reducedMotion}
+                  onSelectSheet={handleSelectSheet}
+                  onReady={handleSceneReady}
+                />
+                {sceneReady ? null : (
+                  <div className="pointer-events-none absolute inset-0 bg-surface-muted">
+                    <FramePlaceholder label="در حال بارگذاری برگه‌ها" />
+                  </div>
+                )}
               </div>
+            ) : (
+              <FramePlaceholder label="در حال آماده‌سازی صحنه" />
             )}
           </ViewportFrame>
           <div className="mt-6">
             <CatalogControls
-              turnedCount={turnedCount}
-              isTurning={pendingTurn !== null}
-              onPrevious={() => requestTurn('prev')}
-              onNext={() => requestTurn('next')}
+              targetPosition={targetPosition}
+              sheetCount={catalogSheetCount}
+              direction={BOOK_DIRECTION}
+              onPrevious={goToPrevious}
+              onNext={goToNext}
+              onSelectPosition={goToPosition}
             />
           </div>
         </CatalogErrorBoundary>
@@ -134,7 +124,14 @@ export function Catalog3D() {
         className="rounded-md border border-border bg-surface px-4 py-3"
       >
         <Typography variant="caption" className="block">
-          برگه جاری: {currentSheet} از {catalogPages.length}
+          موقعیت درخواست‌شده: {targetPosition} (
+          {describePosition(targetPosition, catalogSheetCount)})
+        </Typography>
+        <Typography variant="caption" className="mt-1 block">
+          موقعیت نمایش‌داده‌شده: {displayedPosition}
+        </Typography>
+        <Typography variant="caption" className="mt-1 block">
+          جهت ورق‌زدن: {BOOK_DIRECTION === 'rtl' ? 'راست‌به‌چپ' : 'چپ‌به‌راست'}
         </Typography>
         <Typography variant="caption" className="mt-1 block">
           پشتیبانی WebGL: {mounted ? (webglSupported ? 'بله' : 'خیر') : 'در حال بررسی'}

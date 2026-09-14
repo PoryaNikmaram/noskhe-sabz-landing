@@ -17,6 +17,10 @@ function loadImage(src: string): Promise<HTMLImageElement> {
  * Three.js TextureLoader cannot reliably turn SVG into a GPU texture.
  * This loader fetches the SVG, draws it to a canvas at a fixed size, and
  * returns a CanvasTexture — the same approach browsers use for `<img src="*.svg">`.
+ *
+ * Colour space is configured here, on a texture this module just created, which
+ * is why no component ever has to mutate a value returned from a hook (see
+ * `docs/catalog-3d-spike.md`).
  */
 async function rasterizeSvg(url: string): Promise<Texture> {
   const response = await fetch(url);
@@ -50,7 +54,7 @@ async function rasterizeSvg(url: string): Promise<Texture> {
   }
 }
 
-export class SvgTextureLoader extends Loader {
+export class SvgTextureLoader extends Loader<Texture> {
   constructor(manager?: LoadingManager) {
     super(manager);
   }

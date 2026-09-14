@@ -3,45 +3,55 @@
 import { Canvas } from '@react-three/fiber';
 import { Suspense } from 'react';
 
-import { CANVAS_DPR, SCENE_BACKGROUND } from '../config/catalog-scene';
+import {
+  CAMERA_FAR,
+  CAMERA_FOV,
+  CAMERA_NEAR,
+  CAMERA_POSITION,
+  CANVAS_DPR,
+  SCENE_BACKGROUND,
+} from '../config/catalog-scene';
 import { CatalogScene } from './CatalogScene';
 
-import type { TurnDirection } from '../types/catalog.types';
+import type { BookDirection } from '../types/catalog.types';
 
 type CatalogCanvasProps = {
-  turnedCount: number;
-  pendingTurn: TurnDirection | null;
+  displayedPosition: number;
+  direction: BookDirection;
   reducedMotion: boolean;
-  turnDurationMs: number;
-  onTurnSettled: (nextCount: number) => void;
-  onRequestTurn: (direction: TurnDirection) => void;
+  onSelectSheet: (sheetIndex: number) => void;
+  onReady: () => void;
 };
 
 export function CatalogCanvas({
-  turnedCount,
-  pendingTurn,
+  displayedPosition,
+  direction,
   reducedMotion,
-  turnDurationMs,
-  onTurnSettled,
-  onRequestTurn,
+  onSelectSheet,
+  onReady,
 }: CatalogCanvasProps) {
   return (
     <Canvas
       className="h-full w-full"
       dpr={CANVAS_DPR}
-      shadows
-      camera={{ position: [0, 0.52, 2.85], fov: 38, near: 0.1, far: 40 }}
+      // Percentage-closer filtering: the soft variant was removed in three r186.
+      shadows="percentage"
+      camera={{
+        position: CAMERA_POSITION,
+        fov: CAMERA_FOV,
+        near: CAMERA_NEAR,
+        far: CAMERA_FAR,
+      }}
       gl={{ antialias: true, alpha: false, powerPreference: 'default' }}
     >
       <color attach="background" args={[SCENE_BACKGROUND]} />
       <Suspense fallback={null}>
         <CatalogScene
-          turnedCount={turnedCount}
-          pendingTurn={pendingTurn}
+          displayedPosition={displayedPosition}
+          direction={direction}
           reducedMotion={reducedMotion}
-          turnDurationMs={turnDurationMs}
-          onTurnSettled={onTurnSettled}
-          onRequestTurn={onRequestTurn}
+          onSelectSheet={onSelectSheet}
+          onReady={onReady}
         />
       </Suspense>
     </Canvas>

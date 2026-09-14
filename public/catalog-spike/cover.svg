@@ -3,7 +3,7 @@
   <rect width="512" height="720" fill="#007a73"/>
   <rect x="28" y="28" width="456" height="664" rx="18" fill="#00afa5"/>
   <rect x="56" y="220" width="400" height="220" rx="16" fill="#e6f9f7"/>
-  <text x="256" y="300" text-anchor="middle" font-family="Tahoma, Arial, sans-serif" font-size="42" font-weight="700" fill="#0f1f1e">???? ???</text>
-  <text x="256" y="360" text-anchor="middle" font-family="Tahoma, Arial, sans-serif" font-size="22" fill="#005a55">?????? ???? ?????? ????????</text>
+  <text x="256" y="300" text-anchor="middle" direction="rtl" font-family="Tahoma, Arial, sans-serif" font-size="42" font-weight="700" fill="#0f1f1e">نسخه سبز</text>
+  <text x="256" y="360" text-anchor="middle" direction="rtl" font-family="Tahoma, Arial, sans-serif" font-size="22" font-weight="400" fill="#005a55">سامانه جامع مدیریت داروخانه</text>
   <rect x="186" y="500" width="140" height="12" rx="6" fill="#b3ede8"/>
 </svg>
