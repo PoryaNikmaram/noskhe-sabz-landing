@@ -30,3 +30,10 @@ export type CatalogSheet = {
 export type CatalogPosition = number;
 
 export type NavigationStep = 'next' | 'previous';
+
+/**
+ * Presentation context the catalog is rendered in. `lab` is the diagnostic
+ * `/3d-lab` page (opaque scene, full controls). `hero` is the marketing
+ * homepage: transparent canvas, minimal controls, no diagnostics.
+ */
+export type CatalogVariant = 'lab' | 'hero';

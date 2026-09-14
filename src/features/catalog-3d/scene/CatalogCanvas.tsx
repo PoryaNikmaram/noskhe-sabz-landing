@@ -13,12 +13,13 @@ import {
 } from '../config/catalog-scene';
 import { CatalogScene } from './CatalogScene';
 
-import type { BookDirection } from '../types/catalog.types';
+import type { BookDirection, CatalogVariant } from '../types/catalog.types';
 
 type CatalogCanvasProps = {
   displayedPosition: number;
   direction: BookDirection;
   reducedMotion: boolean;
+  variant?: CatalogVariant;
   onSelectSheet: (sheetIndex: number) => void;
   onReady: () => void;
 };
@@ -27,9 +28,12 @@ export function CatalogCanvas({
   displayedPosition,
   direction,
   reducedMotion,
+  variant = 'lab',
   onSelectSheet,
   onReady,
 }: CatalogCanvasProps) {
+  const transparent = variant === 'hero';
+
   return (
     <Canvas
       className="h-full w-full"
@@ -42,9 +46,12 @@ export function CatalogCanvas({
         near: CAMERA_NEAR,
         far: CAMERA_FAR,
       }}
-      gl={{ antialias: true, alpha: false, powerPreference: 'default' }}
+      gl={{ antialias: true, alpha: transparent, powerPreference: 'default' }}
     >
-      <color attach="background" args={[SCENE_BACKGROUND]} />
+      {/* The Hero presentation has no scene backdrop: the book must sit
+          directly inside the page's own CSS atmosphere, not an opaque
+          WebGL rectangle. */}
+      {transparent ? null : <color attach="background" args={[SCENE_BACKGROUND]} />}
       <Suspense fallback={null}>
         <CatalogScene
           displayedPosition={displayedPosition}

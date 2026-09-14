@@ -1,0 +1,279 @@
+/*
+ * Hero-specific atmosphere palette. Kept local to this component instead of
+ * the global theme because it is a one-off visual composition, not a
+ * site-wide design token set.
+ */
+.hero {
+  --hero-ink: #053f42;
+  --hero-deep: #075f63;
+  --hero-teal: #00afa5;
+  --hero-aqua: #35d4ca;
+  --hero-cyan: #9aede6;
+  --hero-mist: #f6fffd;
+
+  position: relative;
+  isolation: isolate;
+  overflow-x: clip;
+  padding-block: clamp(2.5rem, 6vw, 3.5rem);
+  min-height: clamp(560px, 82svh, 780px);
+  background: linear-gradient(
+    118deg,
+    var(--hero-ink) 0%,
+    var(--hero-deep) 30%,
+    var(--hero-teal) 58%,
+    var(--hero-mist) 96%
+  );
+}
+
+@media (min-width: 1024px) {
+  .hero {
+    min-height: clamp(820px, 90svh, 900px);
+  }
+}
+
+.grid {
+  position: relative;
+  z-index: 30;
+  display: grid;
+  grid-template-columns: 1fr;
+  align-items: center;
+  gap: 2.5rem;
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: 44% 56%;
+    gap: 2rem;
+  }
+}
+
+.content {
+  position: relative;
+  order: 1;
+}
+
+.stage {
+  position: relative;
+  z-index: 10;
+  order: 2;
+  height: clamp(396px, 62svh, 616px);
+}
+
+@media (min-width: 1024px) {
+  .stage {
+    height: clamp(616px, 68svh, 748px);
+  }
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--hero-deep);
+  opacity: 0.92;
+}
+
+.eyebrow::before {
+  content: '';
+  display: inline-block;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 9999px;
+  background: var(--hero-teal);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--hero-teal) 30%, transparent);
+}
+
+.headline {
+  max-width: 18ch;
+}
+
+.ctaRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.875rem;
+  margin-top: 2rem;
+}
+
+.ctaPrimary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 3rem;
+  padding-inline: 1.75rem;
+  border-radius: 9999px;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: #fff;
+  background: linear-gradient(180deg, var(--hero-teal) 0%, #009a91 100%);
+  box-shadow:
+    0 1px 2px color-mix(in srgb, var(--hero-ink) 12%, transparent),
+    0 6px 20px color-mix(in srgb, var(--hero-teal) 32%, transparent);
+  transition:
+    background 200ms ease,
+    box-shadow 200ms ease,
+    transform 200ms ease;
+}
+
+.ctaPrimary:hover {
+  background: linear-gradient(180deg, #00bab0 0%, var(--hero-teal) 100%);
+  box-shadow:
+    0 2px 4px color-mix(in srgb, var(--hero-ink) 14%, transparent),
+    0 8px 24px color-mix(in srgb, var(--hero-teal) 38%, transparent);
+}
+
+.ctaPrimary:active {
+  transform: translateY(1px);
+}
+
+.ctaPrimary:focus-visible {
+  outline: 2px solid var(--hero-teal);
+  outline-offset: 3px;
+}
+
+.ctaSecondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 3rem;
+  padding-inline: 1.5rem;
+  border-radius: 9999px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  color: color-mix(in srgb, var(--hero-ink) 78%, white);
+  background: color-mix(in srgb, white 42%, transparent);
+  border: 1px solid color-mix(in srgb, var(--hero-deep) 22%, transparent);
+  backdrop-filter: blur(4px);
+  transition:
+    background 200ms ease,
+    border-color 200ms ease,
+    color 200ms ease;
+}
+
+.ctaSecondary:hover {
+  background: color-mix(in srgb, white 62%, transparent);
+  border-color: color-mix(in srgb, var(--hero-deep) 32%, transparent);
+  color: var(--hero-ink);
+}
+
+.ctaSecondary:focus-visible {
+  outline: 2px solid var(--hero-teal);
+  outline-offset: 3px;
+}
+
+/*
+ * Decorative wave background. Absolutely positioned, non-interactive, and
+ * strictly z-indexed below the product stage (10) and content (30) per the
+ * Hero's locked stacking order.
+ */
+.waves {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.waveSvg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.waveLayer1 {
+  opacity: 0.92;
+}
+
+.waveLayer2 {
+  opacity: 0.62;
+  mix-blend-mode: screen;
+}
+
+.waveLayer3 {
+  opacity: 0.48;
+  mix-blend-mode: soft-light;
+}
+
+.waveEdge1 {
+  opacity: 0.7;
+}
+
+.waveEdge2 {
+  mix-blend-mode: screen;
+}
+
+.lightField {
+  position: absolute;
+  pointer-events: none;
+  z-index: 3;
+  top: 8%;
+  right: 22%;
+  width: 58%;
+  height: 74%;
+  background:
+    radial-gradient(
+      ellipse 68% 58% at 52% 46%,
+      color-mix(in srgb, var(--hero-cyan) 55%, transparent) 0%,
+      transparent 68%
+    ),
+    radial-gradient(
+      ellipse 42% 38% at 48% 52%,
+      color-mix(in srgb, var(--hero-aqua) 35%, transparent) 0%,
+      transparent 72%
+    );
+  opacity: 0.72;
+  filter: blur(18px);
+}
+
+.bottomFade {
+  position: absolute;
+  z-index: 4;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: clamp(3.5rem, 8vh, 5.5rem);
+  background: linear-gradient(
+    to top,
+    var(--color-background) 0%,
+    color-mix(in srgb, var(--color-background) 85%, transparent) 45%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
+
+@media (max-width: 767px) {
+  .waveLayer3,
+  .waveEdge2 {
+    display: none;
+  }
+
+  .waveLayer1 {
+    opacity: 0.88;
+  }
+
+  .waveLayer2 {
+    opacity: 0.5;
+  }
+
+  .lightField {
+    top: 2%;
+    right: -8%;
+    width: 96%;
+    height: 64%;
+    filter: blur(14px);
+    opacity: 0.65;
+  }
+
+  .bottomFade {
+    height: clamp(2.5rem, 6vh, 4rem);
+  }
+
+  .eyebrow {
+    color: var(--hero-ink);
+    opacity: 0.95;
+  }
+}
