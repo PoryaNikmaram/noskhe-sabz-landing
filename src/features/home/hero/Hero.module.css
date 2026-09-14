@@ -80,7 +80,7 @@
   display: inline-block;
   width: 0.45rem;
   height: 0.45rem;
-  border-radius: 9999px;
+  border-radius: 10px;
   background: var(--hero-teal);
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--hero-teal) 30%, transparent);
 }
@@ -103,12 +103,12 @@
   justify-content: center;
   height: 3rem;
   padding-inline: 1.75rem;
-  border-radius: 9999px;
+  border-radius: 10px;
   font-size: 1rem;
   font-weight: 600;
   letter-spacing: 0.01em;
   color: #fff;
-  background: linear-gradient(180deg, var(--hero-teal) 0%, #009a91 100%);
+  background-color: var(--hero-deep);
   box-shadow:
     0 1px 2px color-mix(in srgb, var(--hero-ink) 12%, transparent),
     0 6px 20px color-mix(in srgb, var(--hero-teal) 32%, transparent);
@@ -140,7 +140,7 @@
   justify-content: center;
   height: 3rem;
   padding-inline: 1.5rem;
-  border-radius: 9999px;
+  border-radius: 10px;
   font-size: 0.9375rem;
   font-weight: 500;
   color: color-mix(in srgb, var(--hero-ink) 78%, white);
